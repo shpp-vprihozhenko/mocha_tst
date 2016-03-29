@@ -1,40 +1,41 @@
-'use strict'
-var sinon = require('sinon')
+var sinon = require('sinon');
+var should = require('should');
 
-class Calculator {
+var View = require('../view.js');
+var view = new View();
 
-    static OnClickSum() {
-        let a = View.get('#number1');
-        let b = View.get('#number2');
+function Calculator () {
+    this.OnClickSum = function() {
+        var a = view.get('#number1');
+        var b = view.get('#number2');
+        console.log("a,b", a,b);
 
-        let result = a + b;
+        var result = a + b;
 
-        View.set('#result', result);
+        view.set('#result', result);
+        return result;
     }
-
 }
 
-let viewSetStub = sinon.stub(View, 'set');
-let viewGetStub = sinon.stub(View, 'get');
+describe ("test1", function(){
+    it("returns the return value from the original function", function () {
 
-viewGetStub.withArgs('#number1').returns(5);
+        var calc = new Calculator();
 
-// тоже самое только для number2
+        var spy = sinon.spy(calc,"OnClickSum");
 
-viewGetStub.withArgs('#number2').returns(7);
+        var viewSetStub = sinon.stub(view, 'set');
+        var viewGetStub = sinon.stub(view, 'get');
 
-// вызываем функцию
+        viewGetStub.withArgs('#number1').returns(5);
+        viewGetStub.withArgs('#number2').returns(7);
 
-Calculator.OnClickSum()
+        var res = calc.OnClickSum(555);
 
-expect(viewGetStub).called.withArguments('#result', 12); // 12 по скольку 5+7 = 12.
+        console.log("res:", res);
+        console.log("args:", spy.args);
 
-viewGetStub.withArgs('#number1').returns(0);
-viewGetStub.withArgs('#number2').returns(0);
-Calculator.OnClickSum()
-expect(viewGetStub).called.withArguments('#result', 0);
-
-viewGetStub.withArgs('#number1').returns(5);
-viewGetStub.withArgs('#number2').returns(5);
-Calculator.OnClickSum()
-expect(viewGetStub).called.withArguments('#result', 10);
+        should(res).be.exactly(12);
+        //expect(viewGetStub).called.withArguments('#result', 12); // 12 по скольку 5+7 = 12.
+    });
+});
